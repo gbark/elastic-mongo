@@ -5,46 +5,44 @@
 # kibana will server as the web ui of elasticsearch
 # mongo-connector will pipeline mongodb content to the elasticsearch
 
-mongo:
-  image: mongo:3.0
-  hostname: mongo
-  mem_limit: 1024m
-  expose:
-    - "27017"
-    - "28017"
-  restart: always
-  entrypoint:
-    [
-      "/usr/bin/mongod",
-      "--replSet",
-      "rs",
-      "--smallfiles",
-      "--httpinterface",
-      "--rest",
-    ]
+# mongosetup:
+#   build: ./mongosetup
+#   mem_limit: 1024m
+#   links:
+#     - mongo:mongo
 
-mongosetup:
-  build: ./mongosetup
-  mem_limit: 1024m
-  links:
-    - mongo:mongo
+# kibana:
+#   image: kibana:4.1
+#   ports:
+#     - "5601:5601"
+#   links:
+#     - elasticsearch:elasticsearch
 
-elasticsearch:
-  image: elasticsearch:1.7
-  mem_limit: 1024m
-  expose:
-    - "9200"
-    - "9300"
+# mongoconnector:
+#   build: ./mongoconnector
+#   links:
+#     - elasticsearch:elasticsearch
+#     - mongo:mongo
 
-kibana:
-  image: kibana:4.1
-  ports:
-    - "5601:5601"
-  links:
-    - elasticsearch:elasticsearch
+version: "0.1"
+services:
+  elasticsearch:
+    image: elasticsearch:7.5.1
+    restart: always
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    tty: true
+    environment:
+      discovery.type: single-node
 
-mongoconnector:
-  build: ./mongoconnector
-  links:
-    - elasticsearch:elasticsearch
-    - mongo:mongo
+  mongo:
+    image: mongo:3.6
+    restart: always
+    ports:
+      - "27017:27017"
+
+volumes:
+  es-data:
+    driver: local
