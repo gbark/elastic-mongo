@@ -1,0 +1,15 @@
+gzip = true
+
+mongo-url = "mongodb://mongodb0:27017"
+
+elasticsearch-urls = ["http://elasticsearch:9200"]
+
+elasticsearch-max-conns = 10
+
+elasticsearch-max-seconds = 1
+
+elasticsearch-max-docs = 1
+
+verbose = true
+
+enable-http-server = true

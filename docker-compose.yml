@@ -1,25 +1,25 @@
 version: "3"
 services:
-  # elasticsearch:
-  #   image: elasticsearch:7.5.1
-  #   restart: always
-  #   ports:
-  #     - "9200:9200"
-  #   volumes:
-  #     - es-data:/usr/share/elasticsearch/data
-  #   tty: true
-  #   environment:
-  #     discovery.type: single-node
+  elasticsearch:
+    image: elasticsearch:7.5.1
+    restart: always
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    tty: true
+    environment:
+      discovery.type: single-node
 
   mongodb0:
-    image: mongo:3.6
+    image: mongo:4
     restart: always
     command: --replSet "rs0"
     ports:
       - "27017:27017"
 
   mongodb1:
-    image: mongo:3.6
+    image: mongo:4
     restart: always
     command: --replSet "rs0"
     ports:
@@ -28,10 +28,11 @@ services:
   mongosetup:
     build: ./mongo-setup-replication
 
-# mongoconnector:
-#   build: ./mongoconnector
-#   links:
-#     - "mongodb0"
+  monstache:
+    build: ./monstache
+    command: -f ./monstache.config.toml
+    ports:
+      - "8080:8080"
 
 volumes:
   es-data:
