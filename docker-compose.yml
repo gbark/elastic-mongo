@@ -1,47 +1,37 @@
-# This will start 5 nodes:
-# mongo will server as the only member of the cluster
-# mongosetup will init mongo as the master node
-# elasticsearch will server as the index search db
-# kibana will server as the web ui of elasticsearch
-# mongo-connector will pipeline mongodb content to the elasticsearch
+version: "3"
+services:
+  # elasticsearch:
+  #   image: elasticsearch:7.5.1
+  #   restart: always
+  #   ports:
+  #     - "9200:9200"
+  #   volumes:
+  #     - es-data:/usr/share/elasticsearch/data
+  #   tty: true
+  #   environment:
+  #     discovery.type: single-node
 
-# mongosetup:
-#   build: ./mongosetup
-#   mem_limit: 1024m
-#   links:
-#     - mongo:mongo
+  mongodb0:
+    image: mongo:3.6
+    restart: always
+    command: --replSet "rs0"
+    ports:
+      - "27017:27017"
 
-# kibana:
-#   image: kibana:4.1
-#   ports:
-#     - "5601:5601"
-#   links:
-#     - elasticsearch:elasticsearch
+  mongodb1:
+    image: mongo:3.6
+    restart: always
+    command: --replSet "rs0"
+    ports:
+      - "27018:27017"
+
+  mongosetup:
+    build: ./mongo-setup-replication
 
 # mongoconnector:
 #   build: ./mongoconnector
 #   links:
-#     - elasticsearch:elasticsearch
-#     - mongo:mongo
-
-version: "0.1"
-services:
-  elasticsearch:
-    image: elasticsearch:7.5.1
-    restart: always
-    ports:
-      - "9200:9200"
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
-    tty: true
-    environment:
-      discovery.type: single-node
-
-  mongo:
-    image: mongo:3.6
-    restart: always
-    ports:
-      - "27017:27017"
+#     - "mongodb0"
 
 volumes:
   es-data:
