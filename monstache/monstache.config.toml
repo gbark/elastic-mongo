@@ -2,7 +2,7 @@ gzip = true
 
 mongo-url = "mongodb://mongodb0:27017"
 
-elasticsearch-urls = ["http://elasticsearch:9200"]
+elasticsearch-urls = ["http://es0:9200"]
 
 elasticsearch-max-conns = 10
 

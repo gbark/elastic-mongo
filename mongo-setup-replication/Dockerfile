@@ -1,7 +1,4 @@
-FROM mongo:3.6
-
-# ENV DEBIAN_FRONTEND noninteractive
-# ENV TZ Asia/Shanghai
+FROM mongo:4
 
 COPY docker-entrypoint.sh /tmp/
 

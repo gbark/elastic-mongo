@@ -1,15 +1,73 @@
 version: "3"
 services:
-  elasticsearch:
+  es0:
     image: elasticsearch:7.5.1
     restart: always
-    ports:
-      - "9200:9200"
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
-    tty: true
     environment:
-      discovery.type: single-node
+      - node.name=es0
+      - cluster.name=es-cluster0
+      - discovery.seed_hosts=es1,es2
+      - cluster.initial_master_nodes=es0,es1,es2
+      - bootstrap.memory_lock=true
+      - thread_pool.write.queue_size=200
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data0:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
+  es1:
+    image: elasticsearch:7.5.1
+    restart: always
+    environment:
+      - node.name=es1
+      - cluster.name=es-cluster0
+      - discovery.seed_hosts=es0,es2
+      - cluster.initial_master_nodes=es0,es1,es2
+      - bootstrap.memory_lock=true
+      - thread_pool.write.queue_size=200
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data1:/usr/share/elasticsearch/data
+    ports:
+      - 9201:9200
+
+  es2:
+    image: elasticsearch:7.5.1
+    restart: always
+    environment:
+      - node.name=es2
+      - cluster.name=es-cluster0
+      - discovery.seed_hosts=es0,es1
+      - cluster.initial_master_nodes=es0,es1,es2
+      - bootstrap.memory_lock=true
+      - thread_pool.write.queue_size=200
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data2:/usr/share/elasticsearch/data
+    ports:
+      - 9202:9200
+
+  kibana:
+    image: kibana:7.5.1
+    restart: always
+    ports:
+      - "5601:5601"
+    environment:
+      - SERVER_NAME="kibana"
+      - ELASTICSEARCH_HOSTS="http://es0:9200"
 
   mongodb0:
     image: mongo:4
@@ -25,15 +83,35 @@ services:
     ports:
       - "27018:27017"
 
+  mongodb2:
+    image: mongo:4
+    restart: always
+    command: --replSet "rs0"
+    ports:
+      - "27019:27017"
+
   mongosetup:
     build: ./mongo-setup-replication
 
   monstache:
     build: ./monstache
+    restart: always
     command: -f ./monstache.config.toml
     ports:
       - "8080:8080"
 
+  mongoexpress:
+    image: mongo-express:latest
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb0
+
 volumes:
-  es-data:
+  data0:
+    driver: local
+  data1:
+    driver: local
+  data2:
     driver: local
