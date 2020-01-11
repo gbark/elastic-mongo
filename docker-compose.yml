@@ -68,6 +68,7 @@ services:
     environment:
       - SERVER_NAME="kibana"
       - ELASTICSEARCH_HOSTS="http://es0:9200"
+      - LOGGING_QUIET=true
 
   mongodb0:
     image: mongo:4
