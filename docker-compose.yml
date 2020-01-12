@@ -1,16 +1,27 @@
 version: "3"
 services:
+  api:
+    build: ./api
+    ports:
+      - "3000:3000" # Expose API port
+      - "9229:9229" # Expose Node process debug port (disable in production)
+    environment: # Set ENV vars
+      - NODE_ENV=local
+      - ES_HOST=es0
+      - PORT=3000
+
   es0:
     image: elasticsearch:7.5.1
     restart: always
     environment:
       - node.name=es0
-      - cluster.name=es-cluster0
-      - discovery.seed_hosts=es1,es2
-      - cluster.initial_master_nodes=es0,es1,es2
+      # - cluster.name=es-cluster0
+      # - discovery.seed_hosts=es1,es2
+      # - cluster.initial_master_nodes=es0,es1,es2
       - bootstrap.memory_lock=true
       - thread_pool.write.queue_size=200
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
     ulimits:
       memlock:
         soft: -1
@@ -20,45 +31,45 @@ services:
     ports:
       - 9200:9200
 
-  es1:
-    image: elasticsearch:7.5.1
-    restart: always
-    environment:
-      - node.name=es1
-      - cluster.name=es-cluster0
-      - discovery.seed_hosts=es0,es2
-      - cluster.initial_master_nodes=es0,es1,es2
-      - bootstrap.memory_lock=true
-      - thread_pool.write.queue_size=200
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data1:/usr/share/elasticsearch/data
-    ports:
-      - 9201:9200
+  # es1:
+  #   image: elasticsearch:7.5.1
+  #   restart: always
+  #   environment:
+  #     - node.name=es1
+  #     - cluster.name=es-cluster0
+  #     - discovery.seed_hosts=es0,es2
+  #     - cluster.initial_master_nodes=es0,es1,es2
+  #     - bootstrap.memory_lock=true
+  #     - thread_pool.write.queue_size=200
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - data1:/usr/share/elasticsearch/data
+  #   ports:
+  #     - 9201:9200
 
-  es2:
-    image: elasticsearch:7.5.1
-    restart: always
-    environment:
-      - node.name=es2
-      - cluster.name=es-cluster0
-      - discovery.seed_hosts=es0,es1
-      - cluster.initial_master_nodes=es0,es1,es2
-      - bootstrap.memory_lock=true
-      - thread_pool.write.queue_size=200
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data2:/usr/share/elasticsearch/data
-    ports:
-      - 9202:9200
+  # es2:
+  #   image: elasticsearch:7.5.1
+  #   restart: always
+  #   environment:
+  #     - node.name=es2
+  #     - cluster.name=es-cluster0
+  #     - discovery.seed_hosts=es0,es1
+  #     - cluster.initial_master_nodes=es0,es1,es2
+  #     - bootstrap.memory_lock=true
+  #     - thread_pool.write.queue_size=200
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - data2:/usr/share/elasticsearch/data
+  #   ports:
+  #     - 9202:9200
 
   kibana:
     image: kibana:7.5.1
@@ -69,6 +80,13 @@ services:
       - SERVER_NAME="kibana"
       - ELASTICSEARCH_HOSTS="http://es0:9200"
       - LOGGING_QUIET=true
+
+  frontend:
+    image: nginx:latest
+    volumes: # Serve local "public" dir
+      - ./client:/usr/share/nginx/html
+    ports:
+      - "8080:80" # Forward site to localhost:8080
 
   mongodb0:
     image: mongo:4
@@ -99,7 +117,7 @@ services:
     restart: always
     command: -f ./monstache.config.toml
     ports:
-      - "8080:8080"
+      - "8082:8080"
 
   mongoexpress:
     image: mongo-express:latest

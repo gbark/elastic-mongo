@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 data/books/
+node_modules/

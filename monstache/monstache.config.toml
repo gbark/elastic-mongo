@@ -1,3 +1,7 @@
 mongo-url = "mongodb://mongodb0:27017"
 
-elasticsearch-urls = ["http://es0:9200", "http://es1:9200", "http://es2:9200"]
+elasticsearch-urls = [
+    "http://es0:9200", 
+    # "http://es1:9200",
+    # "http://es2:9200"
+]

@@ -67,6 +67,7 @@ dependencies:
   - nbconvert=5.6.1=py36_0
   - nbformat=4.4.0=py36_0
   - ncurses=6.1=h0a44026_1
+  - nltk=3.4.5=py36_0
   - notebook=6.0.2=py36_0
   - numpy=1.17.4=py36h890c691_0
   - numpy-base=1.17.4=py36h6575580_0
